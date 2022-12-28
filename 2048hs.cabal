@@ -25,7 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      App
   other-modules:
       Paths_2048hs
   hs-source-dirs:
