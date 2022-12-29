@@ -27,6 +27,7 @@ library
   exposed-modules:
       App
       Readable
+      Sample
       SplitBy
       Types
   other-modules:

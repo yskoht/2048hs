@@ -5,11 +5,11 @@ module App
 
 import Control.Monad
 import Control.Monad.State
-import System.Random
 
 import Types
 import SplitBy
 import Readable
+import Sample
 
 emptyBoard :: Board
 emptyBoard = replicate 16 Empty
@@ -19,11 +19,6 @@ showBoard board = do
   let _lines = splitBy4 $ readable board
   forM_ _lines $ \line -> do
     print line
-
-sample :: [a] -> IO a
-sample xs = do
-  i <- randomRIO (0, length xs - 1)
-  return $ xs !! i
 
 createNumber :: IO Square
 createNumber =
