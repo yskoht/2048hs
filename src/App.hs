@@ -2,6 +2,7 @@ module App
   ( app
   ) where
 
+import Control.Concurrent
 import Control.Monad.State
 import System.IO
 import System.Process
@@ -29,6 +30,9 @@ play board = do
     UnknownKey -> play board
     _ -> do
       let newBoard = move key board
+      clear
+      showBoard newBoard
+      sleep 1500
       newBoard2 <- if newBoard /= board
                     then do
                       number <- createNumber
@@ -46,3 +50,6 @@ hideCursor = putStrLn "\x1b[?25l"
 
 showCursor :: IO ()
 showCursor = putStrLn "\x1b[?25h"
+
+sleep :: Int -> IO ()
+sleep = threadDelay
