@@ -50,8 +50,6 @@ addNumber square board = do
   i <- sampleEmptyIndex board
   return $ replace board i square
 
-type StateIO s a = StateT s IO a
-
 addNumberS :: Square -> StateIO Board Board
 addNumberS square = do
   board <- get
