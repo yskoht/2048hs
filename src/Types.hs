@@ -6,3 +6,5 @@ data Square = Number Int | Empty deriving (Show)
 type Board = [Square]
 
 type StateIO s a = StateT s IO a
+
+data Key = UpKey | DownKey | LeftKey | RightKey | QuitKey | UnknownKey deriving (Show)

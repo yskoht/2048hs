@@ -27,6 +27,7 @@ library
   exposed-modules:
       App
       Board
+      GetKey
       Readable
       Sample
       SplitBy
