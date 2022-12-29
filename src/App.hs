@@ -7,6 +7,7 @@ import System.IO
 
 import Types
 import Board
+import Square
 import GetKey
 
 app :: IO ()
@@ -24,5 +25,10 @@ play board = do
     UnknownKey -> play board
     _ -> do
       let newBoard = move key board
-      showBoard newBoard
-      play newBoard
+      newBoard2 <- if newBoard /= board
+                    then do
+                      number <- createNumber
+                      execStateT (addNumberS number) newBoard
+                    else return newBoard
+      showBoard newBoard2
+      play newBoard2
