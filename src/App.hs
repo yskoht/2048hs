@@ -23,5 +23,6 @@ play board = do
     QuitKey -> return ()
     UnknownKey -> play board
     _ -> do
-      showBoard board
-      play board
+      let newBoard = move key board
+      showBoard newBoard
+      play newBoard
