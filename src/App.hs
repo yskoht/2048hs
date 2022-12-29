@@ -46,10 +46,10 @@ clear :: IO ()
 clear = callCommand "clear"
 
 hideCursor :: IO ()
-hideCursor = putStrLn "\x1b[?25l"
+hideCursor = putStrLn "\ESC[?25l"
 
 showCursor :: IO ()
-showCursor = putStrLn "\x1b[?25h"
+showCursor = putStrLn "\ESC[?25h"
 
 sleep :: Int -> IO ()
 sleep = threadDelay
