@@ -29,6 +29,7 @@ library
       Readable
       Sample
       SplitBy
+      Square
       Types
   other-modules:
       Paths_2048hs

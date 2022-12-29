@@ -10,6 +10,7 @@ import Types
 import SplitBy
 import Readable
 import Sample
+import Square
 
 emptyBoard :: Board
 emptyBoard = replicate 16 Empty
@@ -19,14 +20,6 @@ showBoard board = do
   let _lines = splitBy4 $ readable board
   forM_ _lines $ \line -> do
     print line
-
-createNumber :: IO Square
-createNumber =
-  sample [Number 2, Number 4]
-
-isEmpty :: Square -> Bool
-isEmpty Empty = True
-isEmpty _ = False
 
 sampleEmptyIndex :: Board -> IO Int
 sampleEmptyIndex board = do
