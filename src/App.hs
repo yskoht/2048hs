@@ -4,6 +4,7 @@ module App
 
 import Control.Monad.State
 import System.IO
+import System.Process
 
 import Types
 import Board
@@ -14,6 +15,7 @@ app :: IO ()
 app = do
   hSetBuffering stdin NoBuffering
   board <- execStateT initBoard emptyBoard
+  clear
   showBoard board
   play board
 
@@ -30,5 +32,9 @@ play board = do
                       number <- createNumber
                       execStateT (addNumberS number) newBoard
                     else return newBoard
+      clear
       showBoard newBoard2
       play newBoard2
+
+clear :: IO ()
+clear = callCommand "clear"

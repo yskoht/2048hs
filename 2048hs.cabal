@@ -41,6 +41,7 @@ library
   build-depends:
       base >=4.7 && <5
     , mtl
+    , process
     , random
   default-language: Haskell2010
 
@@ -55,6 +56,7 @@ executable 2048hs-exe
       2048hs
     , base >=4.7 && <5
     , mtl
+    , process
     , random
   default-language: Haskell2010
 
@@ -70,5 +72,6 @@ test-suite 2048hs-test
       2048hs
     , base >=4.7 && <5
     , mtl
+    , process
     , random
   default-language: Haskell2010
