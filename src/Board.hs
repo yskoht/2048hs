@@ -91,3 +91,29 @@ squashLine xs =
         then (line ++ [Number (t + n)], [])
         else (line ++ [Number t], [Number n])
     squash _ _ = error ""
+
+emptyNotExists :: Board -> Bool
+emptyNotExists board = length es == 0
+  where
+    es = filter isEmpty board
+
+adjacentSameNumberNotExists :: [[Square]] -> Bool
+adjacentSameNumberNotExists = foldl f True
+  where
+    f :: Bool -> [Square] -> Bool
+    f acc (x:xs) = acc && (snd $ foldl g (x, True) xs)
+    f _ _ = error ""
+    g :: (Square, Bool) -> Square -> (Square, Bool)
+    g (_, False) _ = (Empty, False)
+    g (Empty, _) _ = (Empty, False)
+    g _ Empty = (Empty, False)
+    g (Number n, _) (Number m) = if n == m then (Number m, False) else (Number m, True)
+
+gameOver :: Board -> Bool
+gameOver board =
+     (emptyNotExists board)
+  && (adjacentSameNumberNotExists _lines)
+  && (adjacentSameNumberNotExists linesT)
+  where
+    _lines = splitBy4 board
+    linesT = transpose _lines

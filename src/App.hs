@@ -40,7 +40,9 @@ play board = do
                     else return newBoard
       clear
       showBoard newBoard2
-      play newBoard2
+      if gameOver newBoard2
+        then putStrLn "Game over"
+        else play newBoard2
 
 clear :: IO ()
 clear = callCommand "clear"
