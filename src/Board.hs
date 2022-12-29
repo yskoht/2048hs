@@ -8,7 +8,6 @@ import Data.List(transpose)
 
 import Types
 import SplitBy
-import Readable
 import Square
 import Sample
 
@@ -20,9 +19,10 @@ emptyBoard = empties 16
 
 showBoard :: Board -> IO ()
 showBoard board = do
-  let _lines = splitBy4 $ readable board
+  let _lines = splitBy4 $ map Square.fmt board
   forM_ _lines $ \line -> do
-    print line
+    forM_ (transpose line) $ \xs -> do
+      putStrLn $ concat xs
 
 sampleEmptyIndex :: Board -> IO Int
 sampleEmptyIndex board = do

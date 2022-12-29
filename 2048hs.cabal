@@ -28,7 +28,6 @@ library
       App
       Board
       GetKey
-      Readable
       Sample
       SplitBy
       Square
