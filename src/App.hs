@@ -15,9 +15,11 @@ app :: IO ()
 app = do
   hSetBuffering stdin NoBuffering
   board <- execStateT initBoard emptyBoard
+  hideCursor
   clear
   showBoard board
   play board
+  showCursor
 
 play :: Board -> IO()
 play board = do
@@ -38,3 +40,9 @@ play board = do
 
 clear :: IO ()
 clear = callCommand "clear"
+
+hideCursor :: IO ()
+hideCursor = putStrLn "\x1b[?25l"
+
+showCursor :: IO ()
+showCursor = putStrLn "\x1b[?25h"
