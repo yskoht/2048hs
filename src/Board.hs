@@ -74,19 +74,17 @@ moveLine line =
 
 squashLine :: [Square] -> [Square]
 squashLine xs =
-  let (a, b) = foldl squash ([], []) xs
-      k = a ++ b
-      len = length k
-  in k ++ empties (4 - len)
+  let (as, bs, cs) = foldl squash ([], [], []) xs
+  in as ++ bs ++ cs
   where
-    squash :: ([Square], [Square]) -> Square -> ([Square], [Square])
-    squash (line, []) s = (line, [s])
-    squash (line, [s]) Empty = (line ++ [s], [Empty])
-    squash (line, [Empty]) (Number n) = (line ++ [Empty], [Number n])
-    squash (line, [Number t]) (Number n) =
+    squash :: ([Square], [Square], [Square]) -> Square -> ([Square], [Square], [Square])
+    squash (line, [], es) s = (line, [s], es)
+    squash (line, [s], es) Empty = (line ++ [s], [Empty], es)
+    squash (line, [Empty], es) (Number n) = (line ++ [Empty], [Number n], es)
+    squash (line, [Number t], es) (Number n) =
       if t == n
-        then (line ++ [Number (t + n)], [])
-        else (line ++ [Number t], [Number n])
+        then (line ++ [Number (t + n)], [], es ++ [Empty])
+        else (line ++ [Number t], [Number n], es)
     squash _ _ = error ""
 
 emptyNotExists :: Board -> Bool
