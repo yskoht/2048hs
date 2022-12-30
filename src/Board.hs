@@ -88,9 +88,7 @@ squashLine xs =
     squash _ _ = error ""
 
 emptyNotExists :: Board -> Bool
-emptyNotExists board = null es
-  where
-    es = filter isEmpty board
+emptyNotExists board = not $ any isEmpty board
 
 adjacentSameNumberNotExists :: [[Square]] -> Bool
 adjacentSameNumberNotExists = foldl f True
