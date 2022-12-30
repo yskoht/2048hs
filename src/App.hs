@@ -16,7 +16,7 @@ app :: IO ()
 app = do
   board <- initialize
   play board
-  showCursor
+  terminate
 
 initialize :: IO Board
 initialize = do
@@ -25,6 +25,10 @@ initialize = do
   hideCursor
   showBoard' board
   return board
+
+terminate :: IO ()
+terminate = do
+  showCursor
 
 play :: Board -> IO()
 play board = do
