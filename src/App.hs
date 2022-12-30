@@ -40,7 +40,7 @@ play board = do
       newBoard <- update key board
       showBoard' newBoard
       if isGameOver newBoard
-        then putStrLn "Game over"
+        then gameOver
         else play newBoard
 
 update :: Key -> Board -> IO Board
@@ -54,6 +54,10 @@ update key board = do
     else do
       number <- createNumber
       addNumber number newBoard
+
+gameOver :: IO ()
+gameOver = do
+  putStrLn "Game over"
 
 clear :: IO ()
 clear = callCommand "clear"
