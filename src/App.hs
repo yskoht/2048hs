@@ -45,7 +45,7 @@ play board = do
 update :: Key -> Board -> IO Board
 update key board = do
   newBoard <- updateMove key board
-  sleep 1500
+  threadDelay 1500
   updateAdd board newBoard
 
 updateMove :: Key -> Board -> IO Board
@@ -78,9 +78,6 @@ hideCursor = putStrLn "\ESC[?25l"
 
 showCursor :: IO ()
 showCursor = putStrLn "\ESC[?25h"
-
-sleep :: Int -> IO ()
-sleep = threadDelay
 
 showBoard' :: Board -> IO ()
 showBoard' board = do
