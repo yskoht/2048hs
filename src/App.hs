@@ -5,12 +5,12 @@ module App
 import Control.Concurrent
 import Control.Monad.State
 import System.IO
-import System.Process
 
 import Types
 import Board
 import Square
 import GetKey
+import Console
 
 app :: IO ()
 app = do
@@ -69,15 +69,6 @@ updateAdd oldBoard newBoard = do
 gameOver :: IO ()
 gameOver = do
   putStrLn "Game over"
-
-clear :: IO ()
-clear = callCommand "clear"
-
-hideCursor :: IO ()
-hideCursor = putStrLn "\ESC[?25l"
-
-showCursor :: IO ()
-showCursor = putStrLn "\ESC[?25h"
 
 showBoard' :: Board -> IO ()
 showBoard' board = do
