@@ -38,7 +38,6 @@ play board = do
     UnknownKey -> play board
     _ -> do
       newBoard <- update key board
-      showBoard' newBoard
       if isGameOver newBoard
         then gameOver
         else play newBoard
@@ -48,12 +47,15 @@ update key board = do
   let newBoard = move key board
   showBoard' newBoard
   sleep 1500
-  if newBoard == board
-    then
-      return newBoard
-    else do
-      number <- createNumber
-      addNumber number newBoard
+  newBoard' <-
+    if newBoard == board
+      then
+        return newBoard
+      else do
+        number <- createNumber
+        addNumber number newBoard
+  showBoard' newBoard'
+  return newBoard'
 
 gameOver :: IO ()
 gameOver = do
