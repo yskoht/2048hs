@@ -54,19 +54,16 @@ initBoard = do
   addNumberS (Number 2)
 
 move :: Key -> Board -> Board
-move LeftKey board =
-  let bs = splitBy4 board
-  in concatMap (squashLine . moveLine) bs
-move RightKey board =
-  let bs = splitBy4 board
-  in concatMap (reverse . squashLine . moveLine . reverse) bs
-move UpKey board =
-  let bs = transpose $ splitBy4 board
-  in concat $ transpose $ map (squashLine . moveLine) bs
-move DownKey board =
-  let bs = transpose $ splitBy4 board
-  in concat $ transpose $ map (reverse . squashLine . moveLine . reverse) bs
-move _ _ = error ""
+move key board
+  | key == LeftKey  = concatMap moveAndSquash bs
+  | key == RightKey = concatMap moveAndSquashRev bs
+  | key == UpKey    = concat $ transpose $ map moveAndSquash $ transpose bs
+  | key == DownKey  = concat $ transpose $ map moveAndSquashRev $ transpose bs
+  | otherwise = error ""
+  where
+    bs = splitBy4 board
+    moveAndSquash = squashLine . moveLine
+    moveAndSquashRev = reverse . moveAndSquash . reverse
 
 moveLine :: [Square] -> [Square]
 moveLine line =
