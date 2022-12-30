@@ -14,12 +14,17 @@ import GetKey
 
 app :: IO ()
 app = do
+  board <- initialize
+  play board
+  showCursor
+
+initialize :: IO Board
+initialize = do
   hSetBuffering stdin NoBuffering
   board <- execStateT initBoard emptyBoard
   hideCursor
   showBoard' board
-  play board
-  showCursor
+  return board
 
 play :: Board -> IO()
 play board = do
