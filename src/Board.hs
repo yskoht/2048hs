@@ -109,8 +109,8 @@ adjacentSameNumberNotExists = foldl f True
     g _ Empty = (Empty, False)
     g (Number n, _) (Number m) = if n == m then (Number m, False) else (Number m, True)
 
-gameOver :: Board -> Bool
-gameOver board = emptyNotExists board
+isGameOver :: Board -> Bool
+isGameOver board = emptyNotExists board
   && adjacentSameNumberNotExists _lines
   && adjacentSameNumberNotExists linesT
   where

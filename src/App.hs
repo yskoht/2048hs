@@ -39,7 +39,7 @@ play board = do
     _ -> do
       newBoard <- update key board
       showBoard' newBoard
-      if gameOver newBoard
+      if isGameOver newBoard
         then putStrLn "Game over"
         else play newBoard
 
