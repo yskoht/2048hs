@@ -37,18 +37,23 @@ play board = do
     QuitKey -> return ()
     UnknownKey -> play board
     _ -> do
-      let newBoard = move key board
+      newBoard <- update key board
       showBoard' newBoard
-      sleep 1500
-      newBoard2 <- if newBoard /= board
-                    then do
-                      number <- createNumber
-                      execStateT (addNumberS number) newBoard
-                    else return newBoard
-      showBoard' newBoard2
-      if gameOver newBoard2
+      if gameOver newBoard
         then putStrLn "Game over"
-        else play newBoard2
+        else play newBoard
+
+update :: Key -> Board -> IO Board
+update key board = do
+  let newBoard = move key board
+  showBoard' newBoard
+  sleep 1500
+  if newBoard == board
+    then
+      return newBoard
+    else do
+      number <- createNumber
+      addNumber number newBoard
 
 clear :: IO ()
 clear = callCommand "clear"
