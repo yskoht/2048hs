@@ -44,11 +44,20 @@ play board = do
 
 update :: Key -> Board -> IO Board
 update key board = do
+  newBoard <- updateMove key board
+  sleep 1500
+  updateAdd board newBoard
+
+updateMove :: Key -> Board -> IO Board
+updateMove key board = do
   let newBoard = move key board
   showBoard' newBoard
-  sleep 1500
+  return newBoard
+
+updateAdd :: Board -> Board -> IO Board
+updateAdd oldBoard newBoard = do
   newBoard' <-
-    if newBoard == board
+    if newBoard == oldBoard
       then
         return newBoard
       else do
