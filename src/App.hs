@@ -46,7 +46,7 @@ play board = do
 update :: Key -> Board -> IO Board
 update key board = do
   newBoard <- updateMove key board
-  threadDelay 1500
+  threadDelay (100 * 1000)
   updateAdd board newBoard
 
 updateMove :: Key -> Board -> IO Board
@@ -139,7 +139,7 @@ render ees = do
       moveCursor pos
       write n
     moveCursor (0, 0)
-    -- threadDelay 5000
+    threadDelay 1000
 
 moveCursor :: Pos -> IO()
 moveCursor (x, y) = do
