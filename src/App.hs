@@ -144,7 +144,9 @@ render ees = do
 moveCursor :: Pos -> IO()
 moveCursor (x, y) = do
   putStr $ "\ESC[" ++ show (y+1) ++ ";" ++ show (x+1) ++ "H"
+  hFlush stdout
 
 write :: Int -> IO()
 write n = do
   putStr $ label (Number n)
+  hFlush stdout
