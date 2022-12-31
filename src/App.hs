@@ -54,9 +54,15 @@ updateMove key board = do
   let newBoard = move key board
   let res = renderEvents $ events key board
   let m = eventLen res
-  let es = take m $ transpose res
+  let res2 = map (f m) res
+  let es = take m $ transpose res2
   if null es then return () else render es
   return newBoard
+  where
+    f :: Int -> [RenderEvent] -> [RenderEvent]
+    f m xs = if length xs >= m
+      then xs
+      else xs ++ replicate (m - length xs) (last xs)
 
 eventLen :: [[a]] -> Int
 eventLen ls =
