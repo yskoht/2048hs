@@ -5,6 +5,7 @@ module App
 import Control.Concurrent
 import Control.Monad.State
 import System.IO
+import Data.List(transpose)
 
 import Types
 import Board
@@ -52,9 +53,13 @@ updateMove :: Key -> Board -> IO Board
 updateMove key board = do
   let newBoard = move key board
   -- let res = renderEvents $ events key board
-  -- print res
+  -- let m = eventLen res
+  -- print $ take m $ transpose res
   showBoard' newBoard
   return newBoard
+
+eventLen :: [[a]] -> Int
+eventLen ls = maximum $ filter (< 100) (map length ls)
 
 type Event = ([Int], Int, Square)
 events :: Key -> Board -> [Event]
@@ -81,7 +86,7 @@ renderEvents = concatMap f
   where
     f :: Event -> [[RenderEvent]]
     f ([k], n, Number t)
-      | k == n = [repeat (rxy k, t)]
+      | k == n = [replicate 100 (rxy k, t)]
       | otherwise =
           if kx == nx
             then
