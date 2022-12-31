@@ -51,8 +51,57 @@ update key board = do
 updateMove :: Key -> Board -> IO Board
 updateMove key board = do
   let newBoard = move key board
+  -- let res = renderEvents $ events key board
+  -- print res
   showBoard' newBoard
   return newBoard
+
+type Event = ([Int], Int, Square)
+events :: Key -> Board -> [Event]
+events key board =
+  let bs = zip ([0..] :: [Int]) (move' key board)
+      es = filter (not . isEmpty . snd . snd) bs
+  in map f es
+  where
+    f (next, (prevs, s)) = (prevs, next, s)
+
+type Pos = (Int, Int)
+
+xy :: Int -> Pos
+xy n = (n `mod` 4, n `div` 4)
+
+rxy :: Int -> Pos
+rxy n =
+  let (x, y) = xy n
+  in (x * 10 + 1, y * 5 + 2)
+
+type RenderEvent = (Pos, Int)
+renderEvents :: [Event] -> [[RenderEvent]]
+renderEvents = concatMap f
+  where
+    f :: Event -> [[RenderEvent]]
+    f ([k], n, Number t)
+      | k == n = [repeat (rxy k, t)]
+      | otherwise =
+          if kx == nx
+            then
+              let rs = if ky > ny
+                  then [ky,ky-1..ny]
+                  else [ky,ky+1..ny]
+              in [zip (zip (repeat kx) rs) (repeat t)]
+            else
+              let rs = if kx > nx
+                  then [kx,kx-1..nx]
+                  else [kx,kx+1..nx]
+              in [zip (zip rs (repeat ky)) (repeat t)]
+        where
+          (kx, ky) = rxy k
+          (nx, ny) = rxy n
+    f ([k1, k2], n, Number t) =
+      let a = head (f ([k1], n, Number (t `div` 2))) ++ [(rxy n, t)]
+          b = head (f ([k2], n, Number (t `div` 2))) ++ [(rxy n, t)]
+      in [a, b]
+    f _ = error ""
 
 updateAdd :: Board -> Board -> IO Board
 updateAdd oldBoard newBoard = do
