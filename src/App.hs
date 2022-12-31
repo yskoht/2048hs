@@ -52,14 +52,16 @@ update key board = do
 updateMove :: Key -> Board -> IO Board
 updateMove key board = do
   let newBoard = move key board
-  -- let res = renderEvents $ events key board
-  -- let m = eventLen res
-  -- print $ take m $ transpose res
-  showBoard' newBoard
+  let res = renderEvents $ events key board
+  let m = eventLen res
+  let es = take m $ transpose res
+  if null es then return () else render es
   return newBoard
 
 eventLen :: [[a]] -> Int
-eventLen ls = maximum $ filter (< 100) (map length ls)
+eventLen ls =
+  let xs = filter (< 100) (map length ls)
+  in if null xs then 0 else maximum xs
 
 type Event = ([Int], Int, Square)
 events :: Key -> Board -> [Event]
@@ -128,3 +130,21 @@ showBoard' :: Board -> IO ()
 showBoard' board = do
   clear
   showBoard board
+
+render :: [[RenderEvent]] -> IO()
+render ees = do
+  forM_ ees $ \es -> do
+    showBoard' emptyBoard
+    forM_ es $ \(pos, n) -> do
+      moveCursor pos
+      write n
+    moveCursor (0, 0)
+    -- threadDelay 5000
+
+moveCursor :: Pos -> IO()
+moveCursor (x, y) = do
+  putStr $ "\ESC[" ++ show (y+1) ++ ";" ++ show (x+1) ++ "H"
+
+write :: Int -> IO()
+write n = do
+  putStr $ label (Number n)
