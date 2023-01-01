@@ -6,7 +6,7 @@ module Square
   ) where
 
 import Types
-import Sample
+import Utils
 
 isEmpty :: Square -> Bool
 isEmpty Empty = True

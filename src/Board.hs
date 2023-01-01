@@ -17,9 +17,8 @@ import Control.Monad.State
 import Data.List(transpose)
 
 import Types
-import SplitBy
 import Square
-import Sample
+import Utils
 import Console
 
 data NumberWithIndex = NumberWithIndex { _index :: Int, number :: Int }
