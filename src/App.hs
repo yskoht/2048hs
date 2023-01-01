@@ -8,7 +8,6 @@ import Control.Monad.State
 import Types
 import Board
 import Square
-import GetKey
 import Console
 import Render
 
