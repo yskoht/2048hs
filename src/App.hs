@@ -145,16 +145,11 @@ render dss = do
     showBoard' emptyBoard
     forM_ ds $ \(p, n) -> do
       moveCursor p
-      write n
+      write $ label $ Number n
     moveCursor (Pos 0 0)
     threadDelay 1000
 
 moveCursor :: Pos -> IO()
 moveCursor (Pos x y) = do
   putStr $ "\ESC[" ++ show (y+1) ++ ";" ++ show (x+1) ++ "H"
-  hFlush stdout
-
-write :: Int -> IO()
-write n = do
-  putStr $ label (Number n)
   hFlush stdout
