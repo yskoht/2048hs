@@ -20,11 +20,8 @@ import SplitBy
 import Square
 import Sample
 
-empties :: Int -> [Square]
-empties n = replicate n Empty
-
 emptyBoard :: Board
-emptyBoard = empties 16
+emptyBoard = replicate 16 Empty
 
 showBoard :: Board -> IO ()
 showBoard board = do
