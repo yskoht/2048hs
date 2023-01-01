@@ -24,7 +24,7 @@ initialize = do
   hSetBuffering stdin NoBuffering
   board <- execStateT initBoard emptyBoard
   hideCursor
-  showBoard' board
+  showBoard board
   return board
 
 terminate :: IO ()
@@ -46,7 +46,7 @@ play board = do
 update :: Key -> Board -> IO Board
 update key board = do
   newBoard <- updateMove key board
-  showBoard' newBoard
+  showBoard newBoard
   threadDelay (100 * 1000)
   updateAdd board newBoard
 
@@ -127,22 +127,17 @@ updateAdd oldBoard newBoard = do
     else do
       number <- createNumber
       newBoard' <- addNumber number newBoard
-      showBoard' newBoard'
+      showBoard newBoard'
       return newBoard'
 
 gameOver :: IO ()
 gameOver = do
   putStrLn "Game over"
 
-showBoard' :: Board -> IO ()
-showBoard' board = do
-  clear
-  showBoard board
-
 render :: [[RenderingData]] -> IO()
 render dss = do
   forM_ dss $ \ds -> do
-    showBoard' emptyBoard
+    showBoard emptyBoard
     forM_ ds $ \(Pos x y, n) -> do
       moveCursor x y
       write $ label $ Number n

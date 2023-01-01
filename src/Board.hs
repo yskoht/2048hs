@@ -20,6 +20,7 @@ import Types
 import SplitBy
 import Square
 import Sample
+import Console
 
 data NumberWithIndex = NumberWithIndex { _index :: Int, number :: Int }
 data Square' = Square' { value :: Square, fromIndexes :: [Int] } deriving (Show)
@@ -28,12 +29,17 @@ type Square'WithIndex = (Int, Square')
 emptyBoard :: Board
 emptyBoard = replicate 16 Empty
 
-showBoard :: Board -> IO ()
-showBoard board = do
+_showBoard :: Board -> IO ()
+_showBoard board = do
   let _lines = splitBy4 $ map Square.fmt board
   forM_ _lines $ \line -> do
     forM_ (transpose line) $ \xs -> do
       putStrLn $ concat xs
+
+showBoard :: Board -> IO ()
+showBoard board = do
+  clear
+  _showBoard board
 
 sampleEmptyIndex :: Board -> IO Int
 sampleEmptyIndex board = do
