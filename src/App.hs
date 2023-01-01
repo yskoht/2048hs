@@ -121,15 +121,14 @@ render' as = render $ renderingData as
 
 updateAdd :: Board -> Board -> IO Board
 updateAdd oldBoard newBoard = do
-  newBoard' <-
-    if newBoard == oldBoard
-      then
-        return newBoard
-      else do
-        number <- createNumber
-        addNumber number newBoard
-  showBoard' newBoard'
-  return newBoard'
+  if newBoard == oldBoard
+    then
+      return newBoard
+    else do
+      number <- createNumber
+      newBoard' <- addNumber number newBoard
+      showBoard' newBoard'
+      return newBoard'
 
 gameOver :: IO ()
 gameOver = do
