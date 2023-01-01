@@ -4,7 +4,6 @@ module App
 
 import Control.Concurrent
 import Control.Monad.State
-import System.IO
 
 import Types
 import Board
@@ -16,16 +15,15 @@ import Render
 app :: IO ()
 app = do
   board <- initialize
+  showBoard board
   play board
   terminate
 
 initialize :: IO Board
 initialize = do
-  hSetBuffering stdin NoBuffering
-  board <- execStateT initBoard emptyBoard
+  disableBuffering
   hideCursor
-  showBoard board
-  return board
+  execStateT initBoard emptyBoard
 
 terminate :: IO ()
 terminate = do

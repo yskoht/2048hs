@@ -4,6 +4,7 @@ module Console
     showCursor,
     moveCursor,
     write,
+    disableBuffering,
   ) where
 
 import System.Process
@@ -27,3 +28,7 @@ write :: String -> IO ()
 write str = do
   putStr str
   hFlush stdout
+
+disableBuffering :: IO ()
+disableBuffering =
+  hSetBuffering stdin NoBuffering
