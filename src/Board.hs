@@ -53,79 +53,99 @@ initBoard = do
   addNumberS (Number 2)
   addNumberS (Number 2)
 
-move :: Key -> Board -> Board
-move key board
-  | key == LeftKey  = concatMap moveAndSquash bs
-  | key == RightKey = concatMap moveAndSquashRev bs
-  | key == UpKey    = concat $ transpose $ map moveAndSquash $ transpose bs
-  | key == DownKey  = concat $ transpose $ map moveAndSquashRev $ transpose bs
-  | otherwise = error ""
+data NumberWithIndex = NumberWithIndex { index :: Int, number :: Int }
+
+withIndex :: [a] -> [(Int, a)]
+withIndex = zip [0..]
+
+numberWithIndex :: Board -> [[NumberWithIndex]]
+numberWithIndex = convert . filter' . splitBy4 . withIndex
   where
-    bs = splitBy4 board
-    moveAndSquash = squashLine . moveLine
-    moveAndSquashRev = reverse . moveAndSquash . reverse
+    -- only Number
+    filter' :: [[(Int, Square)]] -> [[(Int, Square)]]
+    filter' = map f
+      where
+        f :: [(Int, Square)] -> [(Int, Square)]
+        f = filter (not . isEmpty . snd)
 
-type LabeledSquare = ([Int], Square)
-type LabeledBoard = [LabeledSquare]
+    convert :: [[(Int, Square)]] -> [[NumberWithIndex]]
+    convert = map f
+      where
+        f :: [(Int, Square)] -> [NumberWithIndex]
+        f = map g
+        g (i, Number n) = NumberWithIndex i n
+        g _ = error ""
 
-move' :: Key -> Board -> LabeledBoard
-move' key board
-  | key == LeftKey  = concatMap moveAndSquash' bs
-  | key == RightKey = concatMap moveAndSquashRev' bs
-  | key == UpKey    = concat $ transpose $ map moveAndSquash' $ transpose bs
-  | key == DownKey  = concat $ transpose $ map moveAndSquashRev' $ transpose bs
-  | otherwise = error ""
+numberWithIndexT :: Board -> [[NumberWithIndex]]
+numberWithIndexT = convert . filter' . transpose . splitBy4 . withIndex
   where
-    bs = splitBy4 $ labeled [0..] board
-    moveAndSquash' = squashLine' . moveLine'
-    moveAndSquashRev' = reverse . moveAndSquash' . reverse
+    -- only Number
+    filter' :: [[(Int, Square)]] -> [[(Int, Square)]]
+    filter' = map f
+      where
+        f :: [(Int, Square)] -> [(Int, Square)]
+        f = filter (not . isEmpty . snd)
 
-labeled :: [Int] -> [Square] -> [LabeledSquare]
-labeled = zipWith (\i s -> ([i], s))
+    convert :: [[(Int, Square)]] -> [[NumberWithIndex]]
+    convert = map f
+      where
+        f :: [(Int, Square)] -> [NumberWithIndex]
+        f = map g
+        g (i, Number n) = NumberWithIndex i n
+        g _ = error ""
 
-moveLine' :: [LabeledSquare] -> [LabeledSquare]
-moveLine' line =
-  numbers ++ labeled (repeat (-1)) (empties emptyNum)
+
+data A = A { value :: Square, fromIndexes :: [Int] }
+data B = B { fixes :: [A], candidate :: Maybe NumberWithIndex }
+
+convAtoBoard :: [(Int, A)] -> Board
+convAtoBoard = map f
   where
-    emptyNum = length $ filter (isEmpty . snd) line
-    numbers = filter (not . isEmpty . snd) line
+    f :: (Int, A) -> Square
+    f (_, A s _) = s
 
-squashLine' :: [LabeledSquare] -> [LabeledSquare]
-squashLine' xs =
-  let (as, bs, cs) = foldl squash ([], [], []) xs
-  in as ++ bs ++ cs
+move :: Key -> Board -> [(Int, A)]
+move key board = withIndex $ move' key board
   where
-    squash :: ([LabeledSquare], [LabeledSquare], [LabeledSquare]) -> LabeledSquare -> ([LabeledSquare], [LabeledSquare], [LabeledSquare])
-    squash (line, [], es) s = (line, [s], es)
-    squash (line, [s], es) t@(_, Empty) = (line ++ [s], [t], es)
-    squash (line, [u@(_, Empty)], es) t = (line ++ [u], [t], es)
-    squash (line, [u@(i, Number t)], es) v@(j, Number n) =
-      if t == n
-        then (line ++ [(i ++ j, Number (t + n))], [], es ++ [([-1], Empty)])
-        else (line ++ [u], [v], es)
-    squash _ _ = error ""
+    move' key' board'
+      | key' == LeftKey  = concatMap squash ns
+      | key' == RightKey = concatMap squashRev ns
+      | key' == UpKey    = concat $ transpose $ map squash nsT
+      | key' == DownKey  = concat $ transpose $ map squashRev nsT
+      | otherwise = error ""
+      where
+        ns = numberWithIndex board'
+        nsT = numberWithIndexT board'
+        squashRev = reverse . squash . reverse
 
-moveLine :: [Square] -> [Square]
-moveLine line =
-  numbers ++ empties emptyNum
+squash :: [NumberWithIndex] -> [A]
+squash xs =
+  let as = foldl squash' B{ fixes = [], candidate = Nothing } xs
+  in fillEmpty4 $ append as
   where
-    emptyNum = length $ filter isEmpty line
-    numbers = filter (not . isEmpty) line
+    conv :: NumberWithIndex -> A
+    conv (NumberWithIndex i n) = A { value = Number n, fromIndexes = [i] }
 
-squashLine :: [Square] -> [Square]
-squashLine xs =
-  let (as, bs, cs) = foldl squash ([], [], []) xs
-  in as ++ bs ++ cs
-  where
-    squash :: ([Square], [Square], [Square]) -> Square -> ([Square], [Square], [Square])
-    squash (line, [], es) s = (line, [s], es)
-    squash (line, [s], es) Empty = (line ++ [s], [Empty], es)
-    squash (line, [Empty], es) (Number n) = (line ++ [Empty], [Number n], es)
-    squash (line, [Number t], es) (Number n) =
-      if t == n
-        then (line ++ [Number (t + n)], [], es ++ [Empty])
-        else (line ++ [Number t], [Number n], es)
-    squash _ _ = error ""
+    add :: NumberWithIndex -> NumberWithIndex -> A
+    add (NumberWithIndex ai an) (NumberWithIndex bi bn) = A { value = Number (an + bn), fromIndexes = [ai, bi] }
+
+    squash' :: B -> NumberWithIndex -> B
+    squash' (B f Nothing) n = B f (Just n)
+    squash' (B f (Just c)) n
+      | number c == number n = B (f ++ [add c n]) Nothing
+      | otherwise = B (f ++ [conv c]) (Just n)
+
+    append :: B -> [A]
+    append (B f Nothing) = f
+    append (B f (Just c)) = f ++ [conv c]
+
+    fillEmpty4 :: [A] -> [A]
+    fillEmpty4 = fillEmpty 4
+      where
+        fillEmpty :: Int -> [A] -> [A]
+        fillEmpty n zs = zs ++ replicate m (A{ value = Empty, fromIndexes = [] })
+          where
+            m = n - length zs
 
 emptyNotExists :: Board -> Bool
 emptyNotExists board = not $ any isEmpty board
