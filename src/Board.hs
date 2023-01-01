@@ -64,8 +64,8 @@ data NumberWithIndex = NumberWithIndex { _index :: Int, number :: Int }
 withIndex :: [a] -> [(Int, a)]
 withIndex = zip [0..]
 
-numberWithIndex :: Board -> [[NumberWithIndex]]
-numberWithIndex = convert . filter' . splitBy4 . withIndex
+_numberWithIndex :: ([[(Int, Square)]] -> [[(Int, Square)]]) -> Board -> [[NumberWithIndex]]
+_numberWithIndex t = convert . filter' . t . splitBy4 . withIndex
   where
     -- only Number
     filter' :: [[(Int, Square)]] -> [[(Int, Square)]]
@@ -81,25 +81,12 @@ numberWithIndex = convert . filter' . splitBy4 . withIndex
         f = map g
         g (i, Number n) = NumberWithIndex i n
         g _ = error ""
+
+numberWithIndex :: Board -> [[NumberWithIndex]]
+numberWithIndex = _numberWithIndex id
 
 numberWithIndexT :: Board -> [[NumberWithIndex]]
-numberWithIndexT = convert . filter' . transpose . splitBy4 . withIndex
-  where
-    -- only Number
-    filter' :: [[(Int, Square)]] -> [[(Int, Square)]]
-    filter' = map f
-      where
-        f :: [(Int, Square)] -> [(Int, Square)]
-        f = filter (not . isEmpty . snd)
-
-    convert :: [[(Int, Square)]] -> [[NumberWithIndex]]
-    convert = map f
-      where
-        f :: [(Int, Square)] -> [NumberWithIndex]
-        f = map g
-        g (i, Number n) = NumberWithIndex i n
-        g _ = error ""
-
+numberWithIndexT = _numberWithIndex transpose
 
 data A = A { value :: Square, fromIndexes :: [Int] } deriving (Show)
 data B = B { fixes :: [A], candidate :: Maybe NumberWithIndex }
