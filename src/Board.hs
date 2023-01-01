@@ -95,7 +95,7 @@ numberWithIndexT = convert . filter' . transpose . splitBy4 . withIndex
         g _ = error ""
 
 
-data A = A { value :: Square, fromIndexes :: [Int] }
+data A = A { value :: Square, fromIndexes :: [Int] } deriving (Show)
 data B = B { fixes :: [A], candidate :: Maybe NumberWithIndex }
 
 convAtoBoard :: [(Int, A)] -> Board

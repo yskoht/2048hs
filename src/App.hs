@@ -52,70 +52,73 @@ update key board = do
 
 updateMove :: Key -> Board -> IO Board
 updateMove key board = do
-  let newBoard = move key board
-  -- let res = renderEvents $ events key board
-  -- let m = eventLen res
-  -- let res2 = map (f m) res
-  -- let es = take m $ transpose res2
-  -- if null es then return () else render es
-  return $ convAtoBoard newBoard
-  -- where
-  --   f :: Int -> [RenderEvent] -> [RenderEvent]
-  --   f m xs = if length xs >= m
-  --     then xs
-  --     else xs ++ replicate (m - length xs) (last xs)
+  let as = move key board
+  render' as
+  return $ convAtoBoard as
 
--- eventLen :: [[a]] -> Int
--- eventLen ls =
---   let xs = filter (< 100) (map length ls)
---   in if null xs then 0 else maximum xs
+data Pos = Pos { x :: Int, y :: Int } deriving (Show)
+_pos :: Int -> Int -> Pos
+_pos n index = Pos { x = index `mod` n, y = index `div` n }
 
--- type Event = ([Int], Int, Square)
--- events :: Key -> Board -> [Event]
--- events key board =
---   let bs = zip ([0..] :: [Int]) (move' key board)
---       es = filter (not . isEmpty . snd . snd) bs
---   in map f es
---   where
---     f (next, (prevs, s)) = (prevs, next, s)
+pos :: Int -> Pos
+pos = _pos 4
 
--- type Pos = (Int, Int)
+renderingPos :: Int -> Pos
+renderingPos index =
+  let (Pos x y) = pos index
+  in Pos { x = x * 10 + 1, y = y * 5 + 2 }
 
--- xy :: Int -> Pos
--- xy n = (n `mod` 4, n `div` 4)
+type RenderingData = (Pos, Int)
 
--- rxy :: Int -> Pos
--- rxy n =
---   let (x, y) = xy n
---   in (x * 10 + 1, y * 5 + 2)
+render' :: [(Int, A)] -> IO ()
+render' as = render $ renderingData as
+  where
+    renderingData :: [(Int, A)] -> [[RenderingData]]
+    renderingData as' = transpose $ fill $ concatMap f as'
+        where
+          f :: (Int, A) -> [[RenderingData]]
+          f (to, A (Number n) [from])
+            | to == from = [[(renderingPos to, n)]]
+            | toX == fromX =
+              let ys = if fromY < toY
+                  then [fromY, fromY+1 .. toY]
+                  else [fromY, fromY-1 .. toY]
+              in [makeRenderingData (makePosY toX ys) n]
+            | otherwise =
+              let xs = if fromX < toX
+                  then [fromX, fromX+1 .. toX]
+                  else [fromX, fromX-1 .. toX]
+              in [makeRenderingData (makePosX toY xs) n]
+            where
+              Pos toX toY = renderingPos to
+              Pos fromX fromY = renderingPos from
 
--- type RenderEvent = (Pos, Int)
--- renderEvents :: [Event] -> [[RenderEvent]]
--- renderEvents = concatMap f
---   where
---     f :: Event -> [[RenderEvent]]
---     f ([k], n, Number t)
---       | k == n = [replicate 100 (rxy k, t)]
---       | otherwise =
---           if kx == nx
---             then
---               let rs = if ky > ny
---                   then [ky,ky-1..ny]
---                   else [ky,ky+1..ny]
---               in [zip (zip (repeat kx) rs) (repeat t)]
---             else
---               let rs = if kx > nx
---                   then [kx,kx-1..nx]
---                   else [kx,kx+1..nx]
---               in [zip (zip rs (repeat ky)) (repeat t)]
---         where
---           (kx, ky) = rxy k
---           (nx, ny) = rxy n
---     f ([k1, k2], n, Number t) =
---       let a = head (f ([k1], n, Number (t `div` 2))) ++ [(rxy n, t)]
---           b = head (f ([k2], n, Number (t `div` 2))) ++ [(rxy n, t)]
---       in [a, b]
---     f _ = error ""
+              makePosX :: Int -> [Int] -> [Pos]
+              makePosX y = map (`Pos` y)
+
+              makePosY :: Int -> [Int] -> [Pos]
+              makePosY x = map (Pos x)
+
+              makeRenderingData :: [Pos] -> Int -> [RenderingData]
+              makeRenderingData ps n' = zip ps (repeat n')
+          f (to, A (Number n) [from1, from2]) =
+            if length ds1 < length ds2
+              then [ds1, ds2 ++ g]
+              else [ds1 ++ g, ds2]
+            where
+              orgN = n `div` 2
+              ds1 = head $ f (to, A (Number orgN) [from1])
+              ds2 = head $ f (to, A (Number orgN) [from2])
+              g = [(renderingPos to, n)]
+          f _ = [[]]
+
+          fill :: [[RenderingData]] -> [[RenderingData]]
+          fill xss = map g xss'
+            where
+              xss' = filter (not . null) xss
+              m = maximum $ map length xss'
+              g xs = xs ++ replicate (m - length xs) (last xs)
+
 
 updateAdd :: Board -> Board -> IO Board
 updateAdd oldBoard newBoard = do
@@ -138,22 +141,22 @@ showBoard' board = do
   clear
   showBoard board
 
--- render :: [[RenderEvent]] -> IO()
--- render ees = do
---   forM_ ees $ \es -> do
---     showBoard' emptyBoard
---     forM_ es $ \(pos, n) -> do
---       moveCursor pos
---       write n
---     moveCursor (0, 0)
---     threadDelay 1000
+render :: [[RenderingData]] -> IO()
+render dss = do
+  forM_ dss $ \ds -> do
+    showBoard' emptyBoard
+    forM_ ds $ \(p, n) -> do
+      moveCursor p
+      write n
+    moveCursor (Pos 0 0)
+    threadDelay 1000
 
--- moveCursor :: Pos -> IO()
--- moveCursor (x, y) = do
---   putStr $ "\ESC[" ++ show (y+1) ++ ";" ++ show (x+1) ++ "H"
---   hFlush stdout
+moveCursor :: Pos -> IO()
+moveCursor (Pos x y) = do
+  putStr $ "\ESC[" ++ show (y+1) ++ ";" ++ show (x+1) ++ "H"
+  hFlush stdout
 
--- write :: Int -> IO()
--- write n = do
---   putStr $ label (Number n)
---   hFlush stdout
+write :: Int -> IO()
+write n = do
+  putStr $ label (Number n)
+  hFlush stdout
