@@ -79,7 +79,7 @@ _render dss = do
   forM_ dss $ \ds -> do
     showBoard emptyBoard
     forM_ ds $ \(Pos x y, n) -> do
-      moveCursor x y
+      moveCursor (x+1) (y+1)
       write $ label $ Number n
     moveCursor 0 0
     threadDelay 1000
