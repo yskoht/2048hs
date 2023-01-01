@@ -143,13 +143,8 @@ render :: [[RenderingData]] -> IO()
 render dss = do
   forM_ dss $ \ds -> do
     showBoard' emptyBoard
-    forM_ ds $ \(p, n) -> do
-      moveCursor p
+    forM_ ds $ \(Pos x y, n) -> do
+      moveCursor x y
       write $ label $ Number n
-    moveCursor (Pos 0 0)
+    moveCursor 0 0
     threadDelay 1000
-
-moveCursor :: Pos -> IO()
-moveCursor (Pos x y) = do
-  putStr $ "\ESC[" ++ show (y+1) ++ ";" ++ show (x+1) ++ "H"
-  hFlush stdout
