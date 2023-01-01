@@ -171,4 +171,3 @@ isGameOver board = emptyNotExists board
   where
     _lines = splitBy4 board
     linesT = transpose _lines
-
