@@ -1,4 +1,6 @@
-module GetKey where
+module GetKey
+  ( getKey,
+  ) where
 
 import Data.Char
 

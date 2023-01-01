@@ -1,4 +1,9 @@
-module Square where
+module Square
+  ( isEmpty,
+    createNumber,
+    fmt,
+    label,
+  ) where
 
 import Types
 import Sample

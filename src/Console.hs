@@ -1,4 +1,8 @@
-module Console where
+module Console
+  ( clear,
+    hideCursor,
+    showCursor,
+  ) where
 
 import System.Process
 

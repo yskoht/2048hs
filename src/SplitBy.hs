@@ -1,4 +1,6 @@
-module SplitBy where
+module SplitBy
+  ( splitBy4,
+  ) where
 
 splitBy :: Int -> [a] -> [[a]]
 splitBy _ [] = []

@@ -1,4 +1,6 @@
-module Sample where
+module Sample
+  ( sample,
+  ) where
 
 import System.Random
 

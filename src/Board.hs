@@ -1,6 +1,15 @@
 {-# OPTIONS_GHC -Wno-unused-do-bind #-}
 
-module Board where
+module Board
+  ( emptyBoard,
+    showBoard,
+    addNumber,
+    initBoard,
+    convAtoBoard,
+    move,
+    isGameOver,
+    A(..),
+  ) where
 
 import Control.Monad
 import Control.Monad.State
@@ -53,7 +62,7 @@ initBoard = do
   addNumberS (Number 2)
   addNumberS (Number 2)
 
-data NumberWithIndex = NumberWithIndex { index :: Int, number :: Int }
+data NumberWithIndex = NumberWithIndex { _index :: Int, number :: Int }
 
 withIndex :: [a] -> [(Int, a)]
 withIndex = zip [0..]

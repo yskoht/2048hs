@@ -1,4 +1,9 @@
-module Types where
+module Types
+  ( Square(Number, Empty),
+    Board,
+    StateIO,
+    Key(UpKey, DownKey, LeftKey, RightKey, QuitKey, UnknownKey),
+  ) where
 
 import Control.Monad.State
 
