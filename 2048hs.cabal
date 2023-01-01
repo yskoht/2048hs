@@ -29,6 +29,7 @@ library
       Board
       Console
       GetKey
+      Render
       Sample
       SplitBy
       Square
