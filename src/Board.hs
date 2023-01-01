@@ -5,10 +5,11 @@ module Board
     showBoard,
     addNumber,
     initBoard,
-    convAtoBoard,
+    convertSquare'WithIndexToBoard,
     move,
     isGameOver,
-    A(..),
+    Square'(..),
+    Square'WithIndex,
   ) where
 
 import Control.Monad
@@ -19,6 +20,10 @@ import Types
 import SplitBy
 import Square
 import Sample
+
+data NumberWithIndex = NumberWithIndex { _index :: Int, number :: Int }
+data Square' = Square' { value :: Square, fromIndexes :: [Int] } deriving (Show)
+type Square'WithIndex = (Int, Square')
 
 emptyBoard :: Board
 emptyBoard = replicate 16 Empty
@@ -59,8 +64,6 @@ initBoard = do
   addNumberS (Number 2)
   addNumberS (Number 2)
 
-data NumberWithIndex = NumberWithIndex { _index :: Int, number :: Int }
-
 withIndex :: [a] -> [(Int, a)]
 withIndex = zip [0..]
 
@@ -88,16 +91,13 @@ numberWithIndex = _numberWithIndex id
 numberWithIndexT :: Board -> [[NumberWithIndex]]
 numberWithIndexT = _numberWithIndex transpose
 
-data A = A { value :: Square, fromIndexes :: [Int] } deriving (Show)
-data B = B { fixes :: [A], candidate :: Maybe NumberWithIndex }
-
-convAtoBoard :: [(Int, A)] -> Board
-convAtoBoard = map f
+convertSquare'WithIndexToBoard :: [Square'WithIndex] -> Board
+convertSquare'WithIndexToBoard  = map f
   where
-    f :: (Int, A) -> Square
-    f (_, A s _) = s
+    f :: Square'WithIndex -> Square
+    f (_, Square' s _) = s
 
-move :: Key -> Board -> [(Int, A)]
+move :: Key -> Board -> [Square'WithIndex]
 move key board = withIndex $ move' key board
   where
     move' key' board'
@@ -111,34 +111,36 @@ move key board = withIndex $ move' key board
         nsT = numberWithIndexT board'
         squashRev = reverse . squash . reverse
 
-squash :: [NumberWithIndex] -> [A]
-squash xs =
-  let as = foldl squash' B{ fixes = [], candidate = Nothing } xs
-  in fillEmpty4 $ append as
+data T = T { fixes :: [Square'], candidate :: Maybe NumberWithIndex }
+squash :: [NumberWithIndex] -> [Square']
+squash xs = fillEmpty4 $ wrapUp $ foldl squash' initT xs
   where
-    conv :: NumberWithIndex -> A
-    conv (NumberWithIndex i n) = A { value = Number n, fromIndexes = [i] }
+    initT = T { fixes = [], candidate = Nothing }
 
-    add :: NumberWithIndex -> NumberWithIndex -> A
-    add (NumberWithIndex ai an) (NumberWithIndex bi bn) = A { value = Number (an + bn), fromIndexes = [ai, bi] }
+    convert :: NumberWithIndex -> Square'
+    convert (NumberWithIndex i n) = Square' { value = Number n, fromIndexes = [i] }
 
-    squash' :: B -> NumberWithIndex -> B
-    squash' (B f Nothing) n = B f (Just n)
-    squash' (B f (Just c)) n
-      | number c == number n = B (f ++ [add c n]) Nothing
-      | otherwise = B (f ++ [conv c]) (Just n)
+    add :: NumberWithIndex -> NumberWithIndex -> Square'
+    add (NumberWithIndex ai an) (NumberWithIndex bi bn) =
+      Square' { value = Number (an + bn), fromIndexes = [ai, bi] }
 
-    append :: B -> [A]
-    append (B f Nothing) = f
-    append (B f (Just c)) = f ++ [conv c]
+    squash' :: T -> NumberWithIndex -> T
+    squash' (T f Nothing) n = T f (Just n)
+    squash' (T f (Just c)) n
+      | number c == number n = T (f ++ [add c n]) Nothing
+      | otherwise = T (f ++ [convert c]) (Just n)
 
-    fillEmpty4 :: [A] -> [A]
+    wrapUp :: T -> [Square']
+    wrapUp (T f Nothing) = f
+    wrapUp (T f (Just c)) = f ++ [convert c]
+
+    fillEmpty4 :: [Square'] -> [Square']
     fillEmpty4 = fillEmpty 4
       where
-        fillEmpty :: Int -> [A] -> [A]
-        fillEmpty n zs = zs ++ replicate m (A{ value = Empty, fromIndexes = [] })
+        fillEmpty :: Int -> [Square'] -> [Square']
+        fillEmpty n zs = zs ++ replicate (n - length zs) empty
           where
-            m = n - length zs
+            empty = Square' { value = Empty, fromIndexes = [] }
 
 emptyNotExists :: Board -> Bool
 emptyNotExists board = not $ any isEmpty board
@@ -149,6 +151,7 @@ adjacentSameNumberNotExists = foldl f True
     f :: Bool -> [Square] -> Bool
     f acc (x:xs) = acc && snd (foldl g (x, True) xs)
     f _ _ = error ""
+
     g :: (Square, Bool) -> Square -> (Square, Bool)
     g (_, False) _ = (Empty, False)
     g (Empty, _) _ = (Empty, False)

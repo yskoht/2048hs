@@ -54,7 +54,7 @@ updateMove :: Key -> Board -> IO Board
 updateMove key board = do
   let as = move key board
   render' as
-  return $ convAtoBoard as
+  return $ convertSquare'WithIndexToBoard as
 
 data Pos = Pos { x :: Int, y :: Int } deriving (Show)
 _pos :: Int -> Int -> Pos
@@ -70,14 +70,14 @@ renderingPos index =
 
 type RenderingData = (Pos, Int)
 
-render' :: [(Int, A)] -> IO ()
+render' :: [Square'WithIndex] -> IO ()
 render' as = render $ renderingData as
   where
-    renderingData :: [(Int, A)] -> [[RenderingData]]
+    renderingData :: [Square'WithIndex] -> [[RenderingData]]
     renderingData as' = transpose $ fill $ concatMap f as'
         where
-          f :: (Int, A) -> [[RenderingData]]
-          f (to, A (Number n) [from])
+          f :: Square'WithIndex -> [[RenderingData]]
+          f (to, Square' (Number n) [from])
             | to == from = [[(renderingPos to, n)]]
             | toX == fromX =
               let ys = if fromY < toY
@@ -101,14 +101,14 @@ render' as = render $ renderingData as
 
               makeRenderingData :: [Pos] -> Int -> [RenderingData]
               makeRenderingData ps n' = zip ps (repeat n')
-          f (to, A (Number n) [from1, from2]) =
+          f (to, Square' (Number n) [from1, from2]) =
             if length ds1 < length ds2
               then [ds1, ds2 ++ g]
               else [ds1 ++ g, ds2]
             where
               orgN = n `div` 2
-              ds1 = head $ f (to, A (Number orgN) [from1])
-              ds2 = head $ f (to, A (Number orgN) [from2])
+              ds1 = head $ f (to, Square' (Number orgN) [from1])
+              ds2 = head $ f (to, Square' (Number orgN) [from2])
               g = [(renderingPos to, n)]
           f _ = [[]]
 
@@ -118,7 +118,6 @@ render' as = render $ renderingData as
               xss' = filter (not . null) xss
               m = maximum $ map length xss'
               g xs = xs ++ replicate (m - length xs) (last xs)
-
 
 updateAdd :: Board -> Board -> IO Board
 updateAdd oldBoard newBoard = do
