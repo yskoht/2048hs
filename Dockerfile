@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 RUN make install
 
-FROM haskell:9.2.5 AS runner
+FROM debian:buster
 WORKDIR /app
 
 COPY --from=builder /app/bin/2048 ./2048
