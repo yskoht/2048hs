@@ -6,7 +6,7 @@ cabal-version: 1.12
 
 name:           2048hs
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/2048hs#readme>
+description:    Please see the README on GitHub at <https://github.com/yskoht/2048hs#readme>
 homepage:       https://github.com/yskoht/2048hs#readme
 bug-reports:    https://github.com/yskoht/2048hs/issues
 author:         yskoht
@@ -17,7 +17,6 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    CHANGELOG.md
 
 source-repository head
   type: git
