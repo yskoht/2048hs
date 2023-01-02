@@ -22,8 +22,8 @@ pos = _pos 4
 
 renderingPos :: Int -> Pos
 renderingPos index =
-  let (Pos x y) = pos index
-  in Pos { x = x * 10 + 1, y = y * 5 + 2 }
+  let (Pos x' y') = pos index
+  in Pos { x = x' * 10 + 1, y = y' * 5 + 2 }
 
 render :: [Square'WithIndex] -> IO ()
 render as = _render $ renderingData as
@@ -49,10 +49,10 @@ render as = _render $ renderingData as
               Pos fromX fromY = renderingPos from
 
               makePosX :: Int -> [Int] -> [Pos]
-              makePosX y = map (`Pos` y)
+              makePosX y' = map (`Pos` y')
 
               makePosY :: Int -> [Int] -> [Pos]
-              makePosY x = map (Pos x)
+              makePosY x' = map (Pos x')
 
               makeRenderingData :: [Pos] -> Int -> [RenderingData]
               makeRenderingData ps n' = zip ps (repeat n')
@@ -78,8 +78,8 @@ _render :: [[RenderingData]] -> IO()
 _render dss = do
   forM_ dss $ \ds -> do
     showBoard emptyBoard
-    forM_ ds $ \(Pos x y, n) -> do
-      moveCursor (x+1) (y+1)
+    forM_ ds $ \(Pos x' y', n) -> do
+      moveCursor (x' + 1) (y' + 1)
       write $ label $ Number n
     moveCursor 0 0
     threadDelay 1000
