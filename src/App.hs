@@ -22,11 +22,13 @@ initialize :: IO Board
 initialize = do
   disableBuffering
   hideCursor
+  disableEcho
   execStateT initBoard emptyBoard
 
 terminate :: IO ()
 terminate = do
   showCursor
+  enableEcho
 
 play :: Board -> IO()
 play board = do

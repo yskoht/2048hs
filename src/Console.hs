@@ -1,5 +1,7 @@
 module Console
   ( clear,
+    disableEcho,
+    enableEcho,
     hideCursor,
     showCursor,
     moveCursor,
@@ -16,6 +18,12 @@ import Types
 
 clear :: IO ()
 clear = callCommand "clear"
+
+disableEcho :: IO ()
+disableEcho = callCommand "stty -echo"
+
+enableEcho :: IO ()
+enableEcho = callCommand "stty echo"
 
 hideCursor :: IO ()
 hideCursor = putStrLn "\ESC[?25l"
